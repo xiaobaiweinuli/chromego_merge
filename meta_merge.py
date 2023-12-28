@@ -77,10 +77,7 @@ def process_hysteria(data, index):
         ports = server_ports_slt[1]
         ports_slt = ports.split(",")
         server_port = int(ports_slt[0])
-        if len(ports_slt) > 1:
-            mport = ports_slt[1]
-        else:
-            mport = server_port
+        mport = ports_slt[1] if len(ports_slt) > 1 else server_port
         fast_open = json_data["fast_open"]
         insecure = json_data["insecure"]
         server_name = json_data["server_name"]
@@ -169,30 +166,11 @@ def process_xray(data, index):
             # udp转发
             isudp = True
             name = f"reality_{index}"
-            
+
             # 根据network判断tcp
-            if network == "tcp":
-                proxy = {
-                    "name": name,
-                    "type": protocol,
-                    "server": server,
-                    "port": port,
-                    "uuid": uuid,
-                    "network": network,
-                    "tls": istls,
-                    "udp": isudp,
-                    "flow": flow,
-                    "client-fingerprint": fingerprint,
-                    "servername": serverName,                
-                    "reality-opts":{
-                        "public-key": publicKey,
-                        "short-id": shortId}
-                }
-                
-            # 根据network判断grpc
-            elif network == "grpc":
+            if network == "grpc":
                 serviceName = json_data["outbounds"][0]["streamSettings"]["grpcSettings"]["serviceName"]
-                
+
                 # 创建当前网址的proxy字典
                 proxy = {
                     "name": name,
@@ -209,6 +187,24 @@ def process_xray(data, index):
                     "grpc-opts":{
                         "grpc-service-name": serviceName
                     },
+                    "reality-opts":{
+                        "public-key": publicKey,
+                        "short-id": shortId}
+                }
+
+            elif network == "tcp":
+                proxy = {
+                    "name": name,
+                    "type": protocol,
+                    "server": server,
+                    "port": port,
+                    "uuid": uuid,
+                    "network": network,
+                    "tls": istls,
+                    "udp": isudp,
+                    "flow": flow,
+                    "client-fingerprint": fingerprint,
+                    "servername": serverName,                
                     "reality-opts":{
                         "public-key": publicKey,
                         "short-id": shortId}

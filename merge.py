@@ -177,8 +177,11 @@ def process_sb(data, index):
 
         ss = f"{method}:{password}@{server}:{server_port}"
         shadowtls = f'{{"version": "{version}", "host": "{host}","password":{shadowtls_password}}}'
-        shadowtls_proxy = "ss://"+base64.b64encode(ss.encode()).decode()+"?shadow-tls="+base64.b64encode(shadowtls.encode()).decode()+f"#shadowtls{index}"
-        
+        shadowtls_proxy = (
+            f"ss://{base64.b64encode(ss.encode()).decode()}?shadow-tls={base64.b64encode(shadowtls.encode()).decode()}"
+            + f"#shadowtls{index}"
+        )
+
         merged_proxies.append(shadowtls_proxy)
 
     except Exception as e:
@@ -231,14 +234,10 @@ def process_xray(data, index):
         protocol = json_data["outbounds"][0].get("protocol")
 
         if protocol == "vless":
-            vnext = json_data["outbounds"][0]["settings"]["vnext"]
-
-            if vnext:
+            if vnext := json_data["outbounds"][0]["settings"]["vnext"]:
                 server = vnext[0].get("address", "")
                 port = vnext[0].get("port", "")
-                users = vnext[0]["users"]
-
-                if users:
+                if users := vnext[0]["users"]:
                     user = users[0]
                     uuid = user.get("id", "")
                     flow = user.get("flow", "")
